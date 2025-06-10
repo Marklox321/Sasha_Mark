@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Численные методы решения уравнений</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .method {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e8f4fc;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Численные методы решения уравнений</h1>
+        
+        <div class="method">
+            <h2>Метод бисекции</h2>
+            <p>Функция: x³ - 2x - 5 = 0</p>
+            <div>
+                <label>Интервал a: <input type="number" id="bisection_a" value="1" step="0.1"></label>
+                <label>b: <input type="number" id="bisection_b" value="3" step="0.1"></label>
+                <label>Точность: <input type="number" id="bisection_eps" value="0.0001" step="0.0001"></label>
+                <button onclick="solve('bisection')">Решить</button>
+            </div>
+        </div>
+        
+        <div class="method">
+            <h2>Метод Ньютона</h2>
+            <p>Функция: x³ - 2x - 5 = 0</p>
+            <div>
+                <label>Начальное приближение x₀: <input type="number" id="newton_x0" value="2" step="0.1"></label>
+                <label>Точность: <input type="number" id="newton_eps" value="0.0001" step="0.0001"></label>
+                <button onclick="solve('newton')">Решить</button>
+            </div>
+        </div>
+        
+        <div class="method">
+            <h2>Метод простых итераций</h2>
+            <p>Функция: x³ - 2x - 5 = 0</p>
+            <div>
+                <label>Начальное приближение x₀: <input type="number" id="iteration_x0" value="2" step="0.1"></label>
+                <label>Точность: <input type="number" id="iteration_eps" value="0.0001" step="0.0001"></label>
+                <button onclick="solve('iteration')">Решить</button>
+            </div>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        function solve(method) {
+            const data = {
+                method: method,
+                function: 'x^3 - 2x - 5'
+            };
+            
+            if (method === 'bisection') {
+                data.a = document.getElementById('bisection_a').value;
+                data.b = document.getElementById('bisection_b').value;
+                data.eps = document.getElementById('bisection_eps').value;
+            } else {
+                data.x0 = document.getElementById(`${method}_x0`).value;
+                data.eps = document.getElementById(`${method}_eps`).value;
+            }
+            
+            fetch('/solve', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                if (data.success) {
+                    resultDiv.innerHTML = `<strong>Результат:</strong> x ≈ ${data.result.toFixed(6)}<br>${data.message}`;
+                } else {
+                    resultDiv.innerHTML = `<strong>Ошибка:</strong> ${data.message}`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = `<strong>Ошибка:</strong> ${error}`;
+            });
+        }
+    </script>
+</body>
+</html>
